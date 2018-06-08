@@ -82,6 +82,7 @@ public class ImageSelecter {
 			// Convert image to digitzed text and store with .txt extension
 			try {
 				 String result = instance.doOCR(of.getFile());
+				 // Add decipher method here
 				 File newTextFile = new File(of.getFile().getParentFile() + "/" + FilenameUtils.removeExtension(of.getFile().getName()) + ".txt"); // Write in same folder with same file name
 		         FileWriter fw = new FileWriter(newTextFile);
 		         fw.write(result);
