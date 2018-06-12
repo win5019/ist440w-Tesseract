@@ -77,7 +77,7 @@ public class ImageSelecter {
 		try {
 			jl1.setIcon(new ImageIcon(ImageIO.read(of.getFile().getAbsoluteFile())));
 			ITesseract instance = new Tesseract();
-			instance.setDatapath("/Users/littlejkim/ist440w-TesseractDecryption/tessdata");
+			instance.setDatapath("C:\\Users\\2018_in11\\Desktop\\littlejkim\\ist440w-TesseractDecryption\\tessdata");
 			
 			// Convert image to digitzed text and store with .txt extension
 			try {
