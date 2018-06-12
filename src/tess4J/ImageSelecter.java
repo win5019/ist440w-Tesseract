@@ -3,8 +3,10 @@ package tess4J;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,7 +26,7 @@ public class ImageSelecter {
 	JTextArea jt1;
 	JButton jb1, jb2;
     JLabel jl1;
-    OpenFile of;
+    File of;
     
 	ImageSelecter() {
 		initiallize();
@@ -60,9 +62,9 @@ public class ImageSelecter {
 		jb1 = new JButton("Select Image");
 		jb1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				of = new OpenFile();
 				try {
-					of.selectImage(); // Select Image
+					of = OpenFile.selectImage();
+					setImage();
 					refreshFrame(); // Refreshes JLabel to set image on JFrame
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -71,30 +73,33 @@ public class ImageSelecter {
 		});
 		content.add(jb1, BorderLayout.SOUTH);
 	}
+	
+	public void setImage() throws IOException {
+		BufferedImage img = ImageIO.read(of);
+		Image dimg = img.getScaledInstance(jl1.getWidth(), jl1.getHeight(),
+		        Image.SCALE_SMOOTH);
+		jl1.setIcon(new ImageIcon(dimg));	
+		refreshFrame(); 
 
+	}
 	// Set JLabel ImageIcon to selected image
 	public void refreshFrame() {
+		ITesseract instance = new Tesseract();
+		instance.setDatapath("C:\\Users\\2018_in11\\Desktop\\littlejkim\\ist440w-TesseractDecryption\\tessdata");
+		
+		// Convert image to digitzed text and store with .txt extension
 		try {
-			jl1.setIcon(new ImageIcon(ImageIO.read(of.getFile().getAbsoluteFile())));
-			ITesseract instance = new Tesseract();
-			instance.setDatapath("C:\\Users\\2018_in11\\Desktop\\littlejkim\\ist440w-TesseractDecryption\\tessdata");
-			
-			// Convert image to digitzed text and store with .txt extension
-			try {
-				 String result = instance.doOCR(of.getFile());
-				 // Add decipher method here
-				 File newTextFile = new File(of.getFile().getParentFile() + "/" + FilenameUtils.removeExtension(of.getFile().getName()) + ".txt"); // Write in same folder with same file name
-		         FileWriter fw = new FileWriter(newTextFile);
-		         fw.write(result);
-		         fw.close();
-				 jt1.setText("Deciphered Text : \n\n\n" + result + "\n\n\nSaved to file path: " + newTextFile.getAbsolutePath()); // Set JTextArea to text from Tesseract
-				 jt1.setVisible(true);
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
-				
-			}
-		} catch (IOException e) {
+			 String result = instance.doOCR(of);
+			 // Add decipher method here
+			 File newTextFile = new File(of.getParentFile() + "/" + FilenameUtils.removeExtension(of.getName()) + ".txt"); // Write in same folder with same file name
+		     FileWriter fw = new FileWriter(newTextFile);
+		     fw.write(result);
+		     fw.close();
+			 jt1.setText("Deciphered Text : \n\n\n" + result + "\n\n\nSaved to file path: " + newTextFile.getAbsolutePath()); // Set JTextArea to text from Tesseract
+			 jt1.setVisible(true);
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
+			
 		}
 	}
 	

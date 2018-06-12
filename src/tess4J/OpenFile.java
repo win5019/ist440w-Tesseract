@@ -10,30 +10,24 @@ import java.util.Scanner;
 
 public class OpenFile {
 
-	JFileChooser fileChooser = new JFileChooser();
+	static JFileChooser fileChooser = new JFileChooser();
 	Scanner input;
-	File file;
+	static File file;
 	boolean valid;
 	
-	public void selectImage() throws Exception {
-		
+	public static File selectImage() throws Exception {
+		file = fileChooser.getSelectedFile();
 		// Open file chooser
 		if(fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 			file = fileChooser.getSelectedFile();
-			try {
-			    Image image = ImageIO.read(file); 
-			    // if else statement to take only image file extensions
-			    if (image == null) {
-			        valid = false;
-			        System.out.println("The file could not be opened, it is not an image");
-			        selectImage(); // loops until user selects image file
-			    }
-			} catch(IOException ex) {
-			    valid = false;
-			    System.out.println("The file could not be opened, an error occurred.");
-			}
-			
+			// check if file is image (png, jpg, pdf, etc)
+			if(ImageIO.read(file) != null) {
+				return file;
+			} else {
+				selectImage();
+			}			
 		}
+		return null;
 	}
 
 	// Getters and Setters
