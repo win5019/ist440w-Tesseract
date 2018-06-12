@@ -98,8 +98,7 @@ public class ImageSelecter {
 			 jt1.setText("Deciphered Text : \n\n\n" + result + "\n\n\nSaved to file path: " + newTextFile.getAbsolutePath()); // Set JTextArea to text from Tesseract
 			 jt1.setVisible(true);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			
+			System.out.println(e.getMessage());	
 		}
 	}
 	
