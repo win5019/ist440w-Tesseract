@@ -25,10 +25,7 @@ public class ImageSelecter {
 	JButton jb1, jb2;
     JLabel jl1;
     OpenFile of;
-    private String digitizedTextFilePath;
     
-	
-
 	ImageSelecter() {
 		initiallize();
 	}
@@ -80,9 +77,9 @@ public class ImageSelecter {
 		try {
 			jl1.setIcon(new ImageIcon(ImageIO.read(of.getFile().getAbsoluteFile())));
 			ITesseract instance = new Tesseract();
-			instance.setDatapath("C:\\Users\\Win\\git\\ist440w-TesseractDecryption\\tessdata");
+			instance.setDatapath("/Users/littlejkim/ist440w-TesseractDecryption/tessdata");
 			
-			// Convert image to digitized text and store with .txt extension
+			// Convert image to digitzed text and store with .txt extension
 			try {
 				 String result = instance.doOCR(of.getFile());
 				 // Add decipher method here
@@ -126,12 +123,5 @@ public class ImageSelecter {
 		this.jb1 = jb1;
 	}
 	
-	public String getDigitizedTextFilePath() {
-		return digitizedTextFilePath;
-	}
-
-	public void setDigitizedTextFilePath(String digitizedTextFilePath) {
-		this.digitizedTextFilePath = digitizedTextFilePath;
-	}
 	
 }
