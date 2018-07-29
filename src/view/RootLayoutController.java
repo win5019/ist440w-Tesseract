@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
@@ -16,6 +17,8 @@ import main.MainApp;
 
 public class RootLayoutController implements Initializable {
 	MainApp mainApp;
+	@FXML
+	private MenuButton menu;
 	@FXML
 	private Button digitizeButton;
 	@FXML
@@ -38,6 +41,12 @@ public class RootLayoutController implements Initializable {
 	private Label textLabel;
 	@FXML
 	private Label statusLabel;
+	@FXML
+	private MenuItem koreanOption;
+	@FXML
+	private MenuItem englishOption;
+	@FXML
+	private MenuItem chineseOption;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -50,6 +59,7 @@ public class RootLayoutController implements Initializable {
 		imageView.setPreserveRatio(true);
 		
 		// Set focus to false
+		getMenu().setFocusTraversable(false);
 		selectFile.setFocusTraversable(false);
 		insertText.setFocusTraversable(false);
 
@@ -182,5 +192,37 @@ public class RootLayoutController implements Initializable {
 
 	public void setInsertText(Button insertText) {
 		this.insertText = insertText;
+	}
+
+	public MenuButton getMenu() {
+		return menu;
+	}
+
+	public void setMenu(MenuButton menu) {
+		this.menu = menu;
+	}
+
+	public MenuItem getEnglishOption() {
+		return englishOption;
+	}
+
+	public void setEnglishOption(MenuItem englishOption) {
+		this.englishOption = englishOption;
+	}
+
+	public MenuItem getKoreanOption() {
+		return koreanOption;
+	}
+
+	public void setKoreanOption(MenuItem koreanOption) {
+		this.koreanOption = koreanOption;
+	}
+
+	public MenuItem getChineseOption() {
+		return chineseOption;
+	}
+
+	public void setChineseOption(MenuItem chineseOption) {
+		this.chineseOption = chineseOption;
 	}
 }

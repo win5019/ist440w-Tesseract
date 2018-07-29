@@ -190,6 +190,24 @@ public class MainApp extends Application {
 
 		});
 
+		// Change language to Korean
+		rootLayoutController.getKoreanOption().setOnAction(event -> {
+			rootLayoutController.getMenu().setText(rootLayoutController.getKoreanOption().getText());
+			rootLayoutController.setStatusLabel("Option changed to Korean");
+		});
+		
+		// Change language to English
+		rootLayoutController.getEnglishOption().setOnAction(event -> {
+			rootLayoutController.getMenu().setText(rootLayoutController.getEnglishOption().getText());
+			rootLayoutController.setStatusLabel("Option changed to English");
+		});
+		
+		// Change language to Chinese
+		rootLayoutController.getChineseOption().setOnAction(event -> {
+			rootLayoutController.getMenu().setText(rootLayoutController.getChineseOption().getText());
+			rootLayoutController.setStatusLabel("Option changed to Chinese");
+		});
+		
 		// Rests instance. Sets all values to null
 		rootLayoutController.getReset().setOnAction(event -> {
 			rootLayoutController.setStatusLabel("Reset selected. All values have been reset.");
