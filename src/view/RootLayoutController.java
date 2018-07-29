@@ -29,7 +29,9 @@ public class RootLayoutController implements Initializable {
 	@FXML
 	private MenuItem close;
 	@FXML
-	private MenuItem selectFile;
+	private Button selectFile;
+	@FXML
+	private Button insertText;
 	@FXML
 	private MenuItem reset;
 	@FXML
@@ -46,6 +48,10 @@ public class RootLayoutController implements Initializable {
 		
 		// Preserve image ratios for imageview
 		imageView.setPreserveRatio(true);
+		
+		// Set focus to false
+		selectFile.setFocusTraversable(false);
+		insertText.setFocusTraversable(false);
 
 		// Disable focus and editable on text area
 		textArea.setEditable(false);
@@ -102,12 +108,12 @@ public class RootLayoutController implements Initializable {
 		this.close = close;
 	}
 
-	public MenuItem getSelectFile() {
+	public Button getSelectFile() {
 		return selectFile;
 	}
 
-	public void setSelectFile(MenuItem selectFile) {
-		this.selectFile = selectFile;
+	public void setSelectFile(Button button) {
+		this.selectFile = button;
 	}
 
 	public TextArea getTextArea() {
@@ -168,5 +174,13 @@ public class RootLayoutController implements Initializable {
 
 	public void setReset(MenuItem reset) {
 		this.reset = reset;
+	}
+
+	public Button getInsertText() {
+		return insertText;
+	}
+
+	public void setInsertText(Button insertText) {
+		this.insertText = insertText;
 	}
 }
