@@ -43,9 +43,9 @@ public class MainApp extends Application {
 		rootLayoutController.setMainApp(this);
 
 		// set stage initial values
-		primaryStage.initStyle(StageStyle.TRANSPARENT);
+		primaryStage.initStyle(StageStyle.UNIFIED);
 		primaryStage.setTitle("OCR Decrypter");
-		primaryStage.setResizable(true);
+		primaryStage.setResizable(false);
 		primaryStage.setScene(new Scene(root));
 		primaryStage.show();
 
@@ -94,7 +94,7 @@ public class MainApp extends Application {
 			try {
 				// Set labels for digitized Text
 				rootLayoutController.getTextLabel().setText("Digitized Text: ");
-				rootLayoutController.setStatusLabel("Text has been digitized. Press Decrypt button!");
+				rootLayoutController.setStatusLabel("Text has been digitized. Press Decrypt button! (after modifying text)");
 
 				// Get digitized text and store it
 				digitizedText = getDigitizedText();
@@ -154,6 +154,7 @@ public class MainApp extends Application {
 	private boolean chooseFile() {
 		FileChooser chooser = new FileChooser();
 		chooser.setTitle("Select File");
+
 		selectedFile = chooser.showOpenDialog(this.getPrimaryStage());
 		if (selectedFile == null) {
 			rootLayoutController.setStatusLabel("File selection canceled.");
@@ -175,7 +176,7 @@ public class MainApp extends Application {
 	// Calls Tesseract instance and returns string of digitized text
 	public String getDigitizedText() throws TesseractException {
 		ITesseract instance = new Tesseract();
-		instance.setDatapath("/usr/local/Cellar/tesseract/3.05.02/share/tessdata/");
+		instance.setDatapath("/usr/local/Cellar/tesseract/3.05.02/share/tessdata/"); // need to set this to local datapath (can't get it working on module path)
 		return instance.doOCR(selectedFile);
 	}
 
