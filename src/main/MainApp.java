@@ -1,22 +1,17 @@
 package main;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
+import java.io.PrintWriter;
+import java.sql.Timestamp;
 import org.apache.commons.io.FilenameUtils;
-
 import javafx.application.Application;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -29,6 +24,9 @@ public class MainApp extends Application {
 	double xOffset = 0.0;
 	double yOffset = 0.0;
 	private Stage primaryStage;
+	File selectedFile;
+	String digitizedText;
+	String decryptedText;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -36,13 +34,15 @@ public class MainApp extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		// Set FXML to view
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(getClass().getResource("/view/RootLayout.fxml"));
 		Parent root = loader.load();
 		rootLayoutController = loader.getController();
+		rootLayoutController.setStatusLabel("Waiting for image to be selected... (File > Select File)");
 		rootLayoutController.setMainApp(this);
 
-		// set primary stage initial values
+		// set stage initial values
 		primaryStage.initStyle(StageStyle.TRANSPARENT);
 		primaryStage.setTitle("OCR Decrypter");
 		primaryStage.setResizable(true);
@@ -56,7 +56,6 @@ public class MainApp extends Application {
 				xOffset = event.getSceneX();
 				yOffset = event.getSceneY();
 			}
-
 		});
 
 		// Use offset X, Y values to move stage around
@@ -68,65 +67,134 @@ public class MainApp extends Application {
 			}
 		});
 
-		// Closes application
+		// Action when stage is closed
 		rootLayoutController.getClose().setOnAction(event -> {
 			primaryStage.close();
 			System.exit(0);
 		});
 
-		// Select File event handler
+		// Select File action listener. disables digitize button when canceled
 		rootLayoutController.getSelectFile().setOnAction(event -> {
 			try {
-				File selectedFile = chooseFile();
-				setImage(selectedFile);
+				boolean selected = chooseFile();
+				if (selected) {
+					rootLayoutController.getDigitizeButton().setDisable(false);
+					rootLayoutController.setStatusLabel("File selected. Press Digitize button!");
+					setImage();
+				} else {
+					rootLayoutController.getDigitizeButton().setDisable(true);
+				}
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 			}
 		});
+
+		// Button to digitize image to text
+		rootLayoutController.getDigitizeButton().setOnMouseClicked(event -> {
+			try {
+				// Set labels for digitized Text
+				rootLayoutController.getTextLabel().setText("Digitized Text: ");
+				rootLayoutController.setStatusLabel("Text has been digitized. Press Decrypt button!");
+
+				// Get digitized text and store it
+				digitizedText = getDigitizedText();
+				rootLayoutController.getTextArea().setEditable(true);
+				rootLayoutController.getTextArea().setMouseTransparent(false);
+				rootLayoutController.setText(digitizedText);
+
+				// Disable digitize button and enable decrypt button
+				rootLayoutController.getDigitizeButton().setDisable(true);
+				rootLayoutController.getDecryptButton().setDisable(false);
+				writeOuputToTextFile("-----Digitized Text------ \n" + digitizedText);
+			} catch (TesseractException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+
+		// Button to decrypt digitized text
+		rootLayoutController.getDecryptButton().setOnMouseClicked(event -> {
+
+			// User may modify digitized text (to correct errors)
+			String modifiedText = rootLayoutController.getTextArea().getText();
+			rootLayoutController.getDecryptButton().setDisable(true);
+
+			try {
+				writeOuputToTextFile("-----Modified Text----- \n " + modifiedText);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			// Decrypter method
+			// decryptedText = Decrypter(modifiedText);
+
+			// writeOuputToTextFile("-----Decrypted Text----- \n " + decryptedText);
+			rootLayoutController.getTextLabel().setText("Decrypted Text: ");
+			rootLayoutController
+					.setStatusLabel("Text has been decrypted. Ouput has been saved as " + selectedFile.getParentFile()
+							+ "/" + FilenameUtils.removeExtension(selectedFile.getName()) + ".txt");
+
+		});
+
+		// Rests instance. Sets all values to null
+		rootLayoutController.getReset().setOnAction(event -> {
+			rootLayoutController.setStatusLabel("Reset selected. All values have been reset.");
+			rootLayoutController.getImageView().setImage(null);
+			rootLayoutController.getDigitizeButton().setDisable(true);
+			rootLayoutController.getDecryptButton().setDisable(true);
+			selectedFile = null;
+			digitizedText = null;
+			decryptedText = null;
+			rootLayoutController.setText("");
+		});
 	}
 
 	// Choose image file
-	private File chooseFile() {
+	private boolean chooseFile() {
 		FileChooser chooser = new FileChooser();
 		chooser.setTitle("Select File");
-		String userhome = System.getProperty("user.home");
-		File defaultDirectory = new File(userhome + "\\Downloads");
-		chooser.setInitialDirectory(defaultDirectory);
-		File file = chooser.showOpenDialog(this.getPrimaryStage());
-		return file;
+		selectedFile = chooser.showOpenDialog(this.getPrimaryStage());
+		if (selectedFile == null) {
+			rootLayoutController.setStatusLabel("File selection canceled.");
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	private Window getPrimaryStage() {
 		return this.primaryStage;
 	}
 
-	public void setImage(File file) throws IOException {
-		BufferedImage img = ImageIO.read(file);
-		rootLayoutController.getImageView().setImage(SwingFXUtils.toFXImage(img, null));
-		setText(file);
+	// Set image
+	public void setImage() throws IOException {
+		rootLayoutController.setImage(selectedFile);
 	}
 
-	// Set JLabel ImageIcon to selected image
-	public void setText(File file) {
-		System.out.println("hi");
+	// Calls Tesseract instance and returns string of digitized text
+	public String getDigitizedText() throws TesseractException {
 		ITesseract instance = new Tesseract();
-		instance.setDatapath("/tessdata");
+		instance.setDatapath("/usr/local/Cellar/tesseract/3.05.02/share/tessdata/");
+		return instance.doOCR(selectedFile);
+	}
 
-		// Convert image to digitzed text and store with .txt extension
-		try {
-			String result = instance.doOCR(file);
-			// Add decipher method here
-			File newTextFile = new File(file.getParentFile() + "/"
-					+ FilenameUtils.removeExtension(file.getName()) + ".txt"); // Write in same folder with same
-																						// file name
-			FileWriter fw = new FileWriter(newTextFile);
-			fw.write(result);
-			fw.close();
-			rootLayoutController.getTextArea().setText(
-					"Deciphered Text : \n\n\n" + result + "\n\n\nSaved to file path: " + newTextFile.getAbsolutePath()); 
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
+	// Method to write digitized and decrypted output to text file in same directory
+	// as source file (image)
+	public void writeOuputToTextFile(String text) throws IOException {
+		String fileName = selectedFile.getParentFile() + "/" + FilenameUtils.removeExtension(selectedFile.getName())
+				+ ".txt";
+		File file = new File(fileName);
+		PrintWriter out = null;
+		if (file.exists() && !file.isDirectory()) {
+			out = new PrintWriter(new FileOutputStream(new File(fileName), true));
+		} else {
+			out = new PrintWriter(fileName);
 		}
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		String string = timestamp.toString() + ": \n" + text;
+		out.append(string);
+		out.close();
 	}
 
 }
